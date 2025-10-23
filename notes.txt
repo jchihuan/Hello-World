@@ -1,0 +1,17 @@
+conda activate mlops-exam1
+
+python -m pip install pandas
+python -m pip install scikit-learn
+python -m pip install evidently
+python -m pip install matplotlib
+python -m pip install shap
+python -m pip install xgboost
+pip install -U numpy shap xgboost scikit-learn matplotlib pandas
+
+
+
+git
+====
+git config --global user.name "Michael Chihuantito"
+git config --global user.email "jchihuan@gmail.com"
+git init
