@@ -1,4 +1,4 @@
-# Proyecto de Clasificación Binaria - Curso MLOps
+# Proyecto de Clasificación Binaria - MLOps
 
 Este proyecto implementa un modelo de **clasificación binaria** utilizando prácticas modernas de **MLOps**. El objetivo es desarrollar, entrenar, validar y desplegar un modelo de aprendizaje automático que prediga una variable binaria (`0` o `1`) a partir de un conjunto de características.
 
