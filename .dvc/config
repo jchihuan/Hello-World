@@ -1,4 +1,6 @@
 [core]
-    remote = myremote
+    remote = s3remote
 ['remote "myremote"']
     url = gdrive://1rhmNnF0SNXYzTlB4wYh-ocA8hw1fBc7E
+['remote "s3remote"']
+    url = s3://mlops-exam1-dvc-data
