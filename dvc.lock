@@ -1,0 +1,93 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py  data/raw/Data_CU_venta.csv  data/prepared/ 
+      --split-ratio 0.8  --seed 42
+    deps:
+    - path: data/raw/Data_CU_venta.csv
+      hash: md5
+      md5: bc9f37bb1cac68d8db0e61b80ff35c82
+      size: 54605038
+    - path: src/prepare.py
+      hash: md5
+      md5: 37ad981e49745751878cccc2f617926a
+      size: 1677
+    outs:
+    - path: data/prepared
+      hash: md5
+      md5: 7d13edd0b44893cadd46f66b7a7af882.dir
+      size: 34675746
+      nfiles: 2
+  featurize:
+    cmd: python src/featurize.py  data/prepared  data/processed models
+    deps:
+    - path: data/prepared
+      hash: md5
+      md5: 7d13edd0b44893cadd46f66b7a7af882.dir
+      size: 34675746
+      nfiles: 2
+    - path: src/featurize.py
+      hash: md5
+      md5: 723a7e4e87afa5bfdc00766607804495
+      size: 4615
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: c2c6255e0605ff6f8c74a683cd251211.dir
+      size: 40258599
+      nfiles: 2
+    - path: models/preprocessor.pkl
+      hash: md5
+      md5: 6b1a0e8b047e3e1fc3ad35e10101a7cf
+      size: 11418
+  train:
+    cmd: python src/train.py  data/processed  models  --n-estimators 100 
+      --max-depth 5
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: c2c6255e0605ff6f8c74a683cd251211.dir
+      size: 40258599
+      nfiles: 2
+    - path: src/train.py
+      hash: md5
+      md5: 94ba28ef40b37f74cde27803a5e56cf9
+      size: 2080
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: cee432bfc1a1cf21bca9fea7d3c82149
+      size: 528521
+  evaluate:
+    cmd: python src/evaluate.py  data/processed  models  reports/metrics
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: c2c6255e0605ff6f8c74a683cd251211.dir
+      size: 40258599
+      nfiles: 2
+    - path: models/model.pkl
+      hash: md5
+      md5: cee432bfc1a1cf21bca9fea7d3c82149
+      size: 528521
+    - path: models/preprocessor.pkl
+      hash: md5
+      md5: 6b1a0e8b047e3e1fc3ad35e10101a7cf
+      size: 11418
+    - path: src/evaluate.py
+      hash: md5
+      md5: 2d60dbc569078014f0fb4ff786f044c4
+      size: 4653
+    outs:
+    - path: reports/metrics/confusion_matrix.png
+      hash: md5
+      md5: ec2d42398f0b00707d86efd2f77ecebb
+      size: 22210
+    - path: reports/metrics/feature_importance.png
+      hash: md5
+      md5: 24771ac56b3f4faba65e5b7105529961
+      size: 51213
+    - path: reports/metrics/metrics.json
+      hash: md5
+      md5: 12379f529f34a91192fc390bd0afcad3
+      size: 141
