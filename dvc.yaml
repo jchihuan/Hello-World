@@ -1,0 +1,55 @@
+stages:
+  prepare:
+    cmd: >-
+      python src/prepare.py 
+      data/raw/Data_CU_venta.csv 
+      data/prepared/ 
+      --split-ratio ${prepare.split_ratio} 
+      --seed ${prepare.random_state}
+    deps:
+      - src/prepare.py
+      - data/raw/Data_CU_venta.csv
+    outs:
+      - data/prepared
+  featurize:
+    cmd: >-
+      python src/featurize.py 
+      data/prepared 
+      data/processed models
+    deps:
+      - src/featurize.py
+      - data/prepared
+    outs:
+      - data/processed
+      - models/preprocessor.pkl
+  train:
+    cmd: >- 
+      python src/train.py 
+      data/processed 
+      models 
+      --n-estimators ${train.n_estimators} 
+      --max-depth ${train.max_depth}
+    deps:
+      - src/train.py
+      - data/processed
+    outs:
+      - models/model.pkl
+  evaluate:
+    cmd: >-
+      python src/evaluate.py 
+      data/processed 
+      models 
+      reports/metrics
+    deps:
+      - src/evaluate.py
+      - data/processed
+      - models/model.pkl
+      - models/preprocessor.pkl
+    metrics:
+      - reports/metrics/metrics.json:
+          cache: false
+    outs:
+      - reports/metrics/confusion_matrix.png:
+          cache: false
+      - reports/metrics/feature_importance.png:
+          cache: false
