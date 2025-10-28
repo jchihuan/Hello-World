@@ -15,3 +15,8 @@ git
 git config --global user.name "Michael Chihuantito"
 git config --global user.email "jchihuan@gmail.com"
 git init
+
+div
+=====
+dvc repo
+dvc repro drift_check

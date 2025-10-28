@@ -53,3 +53,13 @@ stages:
           cache: false
       - reports/metrics/feature_importance.png:
           cache: false
+  drift_check:
+    cmd: python src/drift_check.py data/raw/Data_CU_venta.csv data/drift/drift_p_codmes_201912.csv reports/drift
+    deps:
+      - src/drift_check.py
+      - data/raw/Data_CU_venta.csv
+      - data/drift/drift_p_codmes_201912.csv
+    outs:
+      - reports/drift/data_drift.html
+    metrics:
+      - reports/drift/data_drift.json
