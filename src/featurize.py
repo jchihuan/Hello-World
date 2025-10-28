@@ -12,7 +12,7 @@ from prefect import flow, task
 
 COLS_CAT_OTHERS = ['grp_camptot06m', 'region', 'ubigeo_buro', 'grp_riesgociiu']
 COLS_CAT_GRUPO0 = ['grp_campecs06m']
-TARGET_COL = 'target' # <--- AÑADIR ESTO
+TARGET_COL = 'target'
 
 @task
 def load_data(path: str) -> pd.DataFrame:
