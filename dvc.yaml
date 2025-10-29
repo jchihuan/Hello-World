@@ -8,6 +8,7 @@ stages:
       --seed ${prepare.random_state}
     deps:
       - src/prepare.py
+      - src/tasks.py
       - data/raw/Data_CU_venta.csv
     outs:
       - data/prepared
@@ -18,6 +19,7 @@ stages:
       data/processed models
     deps:
       - src/featurize.py
+      - src/tasks.py
       - data/prepared
     outs:
       - data/processed
@@ -53,13 +55,50 @@ stages:
           cache: false
       - reports/metrics/feature_importance.png:
           cache: false
-  drift_check:
-    cmd: python src/drift_check.py data/raw/Data_CU_venta.csv data/drift/drift_p_codmes_201912.csv reports/drift
+  drift_check_raw:
+    cmd: >-
+      python src/drift_check.py 
+      data/raw/Data_CU_venta.csv 
+      data/drift/drift_p_codmes_201912.csv 
+      reports/drift/raw
+      --run-name drift_check_raw
     deps:
       - src/drift_check.py
       - data/raw/Data_CU_venta.csv
       - data/drift/drift_p_codmes_201912.csv
     outs:
-      - reports/drift/data_drift.html
+      - reports/drift/raw/data_drift.html:
+          cache: false
     metrics:
-      - reports/drift/data_drift.json
+      - reports/drift/raw/data_drift.json:
+          cache: false
+  preprocess_drift_data:
+    cmd: >-
+      python src/apply_preprocessor.py
+      models/preprocessor.pkl
+      data/drift/drift_p_codmes_201912.csv
+      data/drift_processed/drift_processed_data.csv
+    deps:
+      - src/apply_preprocessor.py
+      - src/tasks.py
+      - models/preprocessor.pkl
+      - data/drift/drift_p_codmes_201912.csv
+    outs:
+      - data/drift_processed/drift_processed_data.csv
+  drift_check_processed:
+    cmd: >-
+      python src/drift_check.py
+      data/processed/train.csv
+      data/drift_processed/drift_processed_data.csv
+      reports/drift/processed
+      --run-name drift_check_processed
+    deps:
+      - src/drift_check.py
+      - data/processed
+      - data/drift_processed/drift_processed_data.csv
+    outs:
+      - reports/drift/processed/data_drift.html:
+          cache: false
+    metrics:
+      - reports/drift/processed/data_drift.json:
+          cache: false

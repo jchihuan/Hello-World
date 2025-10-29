@@ -6,39 +6,47 @@ stages:
     deps:
     - path: data/raw/Data_CU_venta.csv
       hash: md5
-      md5: a78ec715a740e52f3e3a6773ab73ac45
-      size: 23194530
+      md5: 13c653b294f178aa824e75e8f59af7e4
+      size: 23194128
     - path: src/prepare.py
       hash: md5
-      md5: 37ad981e49745751878cccc2f617926a
-      size: 1677
+      md5: 7171571678b59a53e10c7d64cb3217c4
+      size: 803
+    - path: src/tasks.py
+      hash: md5
+      md5: f49ffd36fe34ebad5b7538172e5c9b9d
+      size: 4282
     outs:
     - path: data/prepared
       hash: md5
-      md5: 253f50e05b0f1f65fc42b21787aa5c9d.dir
-      size: 21933802
+      md5: eae43fb6990dbc01e263b52224ab7379.dir
+      size: 21933420
       nfiles: 2
   featurize:
     cmd: python src/featurize.py  data/prepared  data/processed models
     deps:
     - path: data/prepared
       hash: md5
-      md5: 253f50e05b0f1f65fc42b21787aa5c9d.dir
-      size: 21933802
+      md5: eae43fb6990dbc01e263b52224ab7379.dir
+      size: 21933420
       nfiles: 2
     - path: src/featurize.py
       hash: md5
-      md5: 2e31ef7fc1b8ce3d212dbb65c6e4225f
-      size: 4595
+      md5: dad8934d9f94ce66901453c9d81198b8
+      size: 2066
+    - path: src/tasks.py
+      hash: md5
+      md5: f49ffd36fe34ebad5b7538172e5c9b9d
+      size: 4282
     outs:
     - path: data/processed
       hash: md5
-      md5: 827be9ddce93eceb72b95c3143734251.dir
-      size: 27944465
+      md5: 091349a8af13b98e35ad099436a12830.dir
+      size: 27942079
       nfiles: 2
     - path: models/preprocessor.pkl
       hash: md5
-      md5: fb885b6583e3cb9fa8b570d27a97f0a5
+      md5: ab0b65d1c8a226734bf858e6ecedfc4d
       size: 11400
   train:
     cmd: python src/train.py  data/processed  models  --n-estimators 100 
@@ -46,8 +54,8 @@ stages:
     deps:
     - path: data/processed
       hash: md5
-      md5: 827be9ddce93eceb72b95c3143734251.dir
-      size: 27944465
+      md5: 091349a8af13b98e35ad099436a12830.dir
+      size: 27942079
       nfiles: 2
     - path: src/train.py
       hash: md5
@@ -56,23 +64,23 @@ stages:
     outs:
     - path: models/model.pkl
       hash: md5
-      md5: 9ef92dff98bda913ae6dc050b9bb3f68
-      size: 517161
+      md5: bcefbd169274d5a667581454ffbd6365
+      size: 511241
   evaluate:
     cmd: python src/evaluate.py  data/processed  models  reports/metrics
     deps:
     - path: data/processed
       hash: md5
-      md5: 827be9ddce93eceb72b95c3143734251.dir
-      size: 27944465
+      md5: 091349a8af13b98e35ad099436a12830.dir
+      size: 27942079
       nfiles: 2
     - path: models/model.pkl
       hash: md5
-      md5: 9ef92dff98bda913ae6dc050b9bb3f68
-      size: 517161
+      md5: bcefbd169274d5a667581454ffbd6365
+      size: 511241
     - path: models/preprocessor.pkl
       hash: md5
-      md5: fb885b6583e3cb9fa8b570d27a97f0a5
+      md5: ab0b65d1c8a226734bf858e6ecedfc4d
       size: 11400
     - path: src/evaluate.py
       hash: md5
@@ -81,15 +89,15 @@ stages:
     outs:
     - path: reports/metrics/confusion_matrix.png
       hash: md5
-      md5: 8764a74f79cc85ce11c358243944c145
-      size: 20451
+      md5: 65819f029d5965b5511f5358934fbf82
+      size: 20363
     - path: reports/metrics/feature_importance.png
       hash: md5
-      md5: d961917d2eec3375a8cc5337197d7b47
-      size: 51459
+      md5: 9057724dd5acf19080bfd435eeb1b7cb
+      size: 51524
     - path: reports/metrics/metrics.json
       hash: md5
-      md5: df3bb14c5b60d9b13c3792ce94b08910
+      md5: 93f337dc1f6608a78aeb64f02ab7711d
       size: 141
   drift_check:
     cmd: python src/drift_check.py data/raw/Data_CU_venta.csv 
@@ -116,3 +124,82 @@ stages:
       hash: md5
       md5: 0cbc9ed3e1dac9621d44ee17fa5d500e
       size: 1158
+  drift_check_raw:
+    cmd: python src/drift_check.py  data/raw/Data_CU_venta.csv 
+      data/drift/drift_p_codmes_201912.csv  reports/drift/raw --run-name 
+      drift_check_raw
+    deps:
+    - path: data/drift/drift_p_codmes_201912.csv
+      hash: md5
+      md5: 3f63dbe921a06c1d9cb7f560b60ddaa5
+      size: 8938470
+    - path: data/raw/Data_CU_venta.csv
+      hash: md5
+      md5: 13c653b294f178aa824e75e8f59af7e4
+      size: 23194128
+    - path: src/drift_check.py
+      hash: md5
+      md5: 16fe55e904642b2a79c4632e61996327
+      size: 4085
+    outs:
+    - path: reports/drift/raw/data_drift.html
+      hash: md5
+      md5: 618ec16a8c8f2ce52418837038516a26
+      size: 4008483
+    - path: reports/drift/raw/data_drift.json
+      hash: md5
+      md5: a3924758a18c4a13326880b2d1aef295
+      size: 882
+  preprocess_drift_data:
+    cmd: python src/apply_preprocessor.py models/preprocessor.pkl 
+      data/drift/drift_p_codmes_201912.csv 
+      data/drift_processed/drift_processed_data.csv
+    deps:
+    - path: data/drift/drift_p_codmes_201912.csv
+      hash: md5
+      md5: 3f63dbe921a06c1d9cb7f560b60ddaa5
+      size: 8938470
+    - path: models/preprocessor.pkl
+      hash: md5
+      md5: ab0b65d1c8a226734bf858e6ecedfc4d
+      size: 11400
+    - path: src/apply_preprocessor.py
+      hash: md5
+      md5: c0b5a4484ae5cf53db171ba505d5510e
+      size: 1278
+    - path: src/tasks.py
+      hash: md5
+      md5: f49ffd36fe34ebad5b7538172e5c9b9d
+      size: 4282
+    outs:
+    - path: data/drift_processed/drift_processed_data.csv
+      hash: md5
+      md5: 8f8606029d162e3fd449562d709ac0f8
+      size: 10703786
+  drift_check_processed:
+    cmd: python src/drift_check.py data/processed/train.csv 
+      data/drift_processed/drift_processed_data.csv reports/drift/processed 
+      --run-name drift_check_processed
+    deps:
+    - path: data/drift_processed/drift_processed_data.csv
+      hash: md5
+      md5: 8f8606029d162e3fd449562d709ac0f8
+      size: 10703786
+    - path: data/processed
+      hash: md5
+      md5: 091349a8af13b98e35ad099436a12830.dir
+      size: 27942079
+      nfiles: 2
+    - path: src/drift_check.py
+      hash: md5
+      md5: 16fe55e904642b2a79c4632e61996327
+      size: 4085
+    outs:
+    - path: reports/drift/processed/data_drift.html
+      hash: md5
+      md5: e6cac63aaef29e709b575bb92941cd69
+      size: 4009482
+    - path: reports/drift/processed/data_drift.json
+      hash: md5
+      md5: 7c2a6d7ee09372847c4414d0afe02125
+      size: 878

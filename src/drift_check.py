@@ -26,13 +26,12 @@ def generate_drift_report(train_df: pd.DataFrame, test_df: pd.DataFrame, output_
     test_df = test_df.select_dtypes(include=["number", "category"])
 
     schema = DataDefinition(
-        numerical_columns=["p_codmes", 
-                           "monto", 
+        numerical_columns=["monto", 
                            "prm_sldvigrstsf12m",
                            "rec_campecs06m", 
                            "min_difsaltottcr12m", 
                            "prm_pctusosaltottcr03m"],
-        categorical_columns=["target"],
+        categorical_columns=[],
     )
 
     eval_ref = Dataset.from_pandas(pd.DataFrame(train_df), data_definition=schema)
@@ -86,7 +85,7 @@ def drift_check_flow(args: argparse.Namespace):
     mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://localhost:5000"))
     mlflow.set_experiment(os.getenv("MLFLOW_EXPERIMENT_NAME", "random_forest_experiment"))
 
-    with mlflow.start_run(run_name="data_drift_check"):
+    with mlflow.start_run(run_name=args.run_name):
         train_df = load_data(args.train_path)
         test_df = load_data(args.test_path)
         output_dir = args.output_dir
@@ -109,6 +108,7 @@ if __name__ == "__main__":
     parser.add_argument("train_path", type=str)
     parser.add_argument("test_path", type=str)
     parser.add_argument("output_dir", type=str, help="Directorio donde guardar los reportes de drift")
+    parser.add_argument("--run-name", type=str, default="data_drift_check")
     args = parser.parse_args()
 
     drift_check_flow(args)

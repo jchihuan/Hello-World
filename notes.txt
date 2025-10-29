@@ -20,3 +20,10 @@ div
 =====
 dvc repo
 dvc repro drift_check
+
+
+
+git rm -r --cached data/drift
+
+# generar el requirement
+conda env export > environment.yml

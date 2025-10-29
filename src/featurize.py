@@ -1,82 +1,18 @@
 import argparse
 import os
 import pandas as pd
-import numpy as np
-import joblib
-from sklearn.compose import ColumnTransformer
-from sklearn.impute import SimpleImputer
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import OrdinalEncoder
-from typing import Any, Tuple
-from prefect import flow, task
-
-COLS_CAT_OTHERS = ['grp_camptot06m', 'region', 'ubigeo_buro', 'grp_riesgociiu']
-COLS_CAT_GRUPO0 = ['grp_campecs06m']
-TARGET_COL = 'target'
-
-@task
-def load_data(path: str) -> pd.DataFrame:
-    return pd.read_csv(path)
-
-@task
-def get_num_columns(df: pd.DataFrame, target_col: str = TARGET_COL) -> list: # <--- Leve ajuste
-    cols_numericas = df.select_dtypes(include=np.number).columns.drop(target_col).tolist()
-    return cols_numericas
-
-@task
-def create_preprocessor(numeric_cols: list) -> ColumnTransformer:
-    numeric_pipeline = Pipeline(steps=[
-        ('imputer_num', SimpleImputer(strategy='mean'))
-    ])
-    cat_others_pipeline = Pipeline(steps=[
-        ('imputer_cat', SimpleImputer(strategy='constant', fill_value='Otros')),
-        ('encoder_ord', OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1))
-    ])
-    cat_grupo0_pipeline = Pipeline(steps=[
-        ('imputer_cat', SimpleImputer(strategy='constant', fill_value='grupo_0')),
-        ('encoder_ord', OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1))
-    ])
-    
-    preprocessor = ColumnTransformer(
-        transformers=[
-            ('num', numeric_pipeline, numeric_cols),
-            ('cat_otros', cat_others_pipeline, COLS_CAT_OTHERS),
-            ('cat_grupo0', cat_grupo0_pipeline, COLS_CAT_GRUPO0),
-        ],
-        remainder='drop',
-        verbose_feature_names_out=False
-    )
-    
-    preprocessor.set_output(transform="pandas")
-    return preprocessor
-
-@task
-def separate_features_target(df: pd.DataFrame, target_col: str) -> Tuple[pd.DataFrame, pd.Series]:
-    X = df.drop(columns=target_col)
-    y = df[target_col]
-    return X, y
-
-@task
-def fit_preprocessor(preprocessor: ColumnTransformer, X_train: pd.DataFrame) -> ColumnTransformer: # <--- Cambiado a X_train
-    preprocessor.fit(X_train)
-    return preprocessor
-
-@task
-def transform_data(preprocessor: ColumnTransformer, X_df: pd.DataFrame) -> pd.DataFrame: # <--- Cambiado a X_df
-    processed_df = preprocessor.transform(X_df)
-    return processed_df # type: ignore
-
-@task(retries=3, retry_delay_seconds=5)
-def save_artifact(artifact: Any, path: str):
-    joblib.dump(artifact, path)
-
-@task(retries=3, retry_delay_seconds=5)
-def save_data(df: pd.DataFrame, path: str):
-    directory = os.path.dirname(path)
-    if directory and not os.path.exists(directory):
-        os.makedirs(directory, exist_ok=True)
-    
-    df.to_csv(path, index=False)
+from tasks import (
+    load_data,
+    get_num_columns,
+    create_preprocessor,
+    separate_features_target,
+    fit_preprocessor,
+    transform_data,
+    save_artifact,
+    save_data,
+    TARGET_COL
+)
+from prefect import flow
 
 @flow(name="Feature Engineering Pipeline")
 def featurize_flow(args):    
